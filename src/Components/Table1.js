@@ -17,6 +17,8 @@ const Table1 = ({ imageUrl, rotation, openModal, onClose }) => {
     const imagePath = imageUrl === 'blue' ? blue : imageUrl === 'green' ? green : grey;
     const rotationStyle = rotation === '90' ? { transform: 'rotate(90deg)' } : {};
     const intervalId1 = useRef(null);
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
 
     const myID = live.find(item => item.id === id);
 
@@ -34,6 +36,7 @@ const Table1 = ({ imageUrl, rotation, openModal, onClose }) => {
 
     const reset = () => {
         clearInterval(intervalId1.current);
+        source.cancel('Cancelled')
         setT1(prevState => ({ 
             ...prevState,
             compid: null,
@@ -93,6 +96,7 @@ const Table1 = ({ imageUrl, rotation, openModal, onClose }) => {
                 try {
                     const response = await axios.post('https://twism.vercel.app/abif', null, {
                         params: { compid: t1.compid, matchid: t1.matchid },
+                        cancelToken: source.token,
                     });
                     if (response && response.data) {
                         const res = Object.keys(response.data).map((key) => response.data[key]);
